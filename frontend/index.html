@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroLink — Airport Ride Pooling</title>
+  <meta name="description" content="AeroLink: Smart airport ride pooling with dynamic pricing and real-time dispatch">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- ============ HEADER ============ -->
+  <header class="app-header">
+    <div class="logo">
+      <span class="logo-icon">✈</span>
+      <h1>AeroLink</h1>
+      <span class="logo-tag">Pool & Go</span>
+    </div>
+    <nav class="view-tabs">
+      <button class="tab active" data-view="passenger">
+        <span class="tab-icon">👤</span> Passenger
+      </button>
+      <button class="tab" data-view="driver">
+        <span class="tab-icon">🚗</span> Driver
+      </button>
+      <button class="tab" data-view="admin">
+        <span class="tab-icon">📊</span> Admin
+      </button>
+    </nav>
+    <div class="status-indicator" id="statusIndicator">
+      <span class="pulse"></span>
+      <span id="statusText">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- ============ PASSENGER VIEW ============ -->
+  <main id="passengerView" class="view active">
+    <div class="view-header">
+      <div class="selector-group">
+        <label for="passengerSelect">Select Passenger</label>
+        <select id="passengerSelect"></select>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Fare Estimator -->
+      <section class="card estimator-card">
+        <h2>💰 Fare Estimator</h2>
+        <div class="form-row">
+          <div class="field">
+            <label>📍 Pickup Location</label>
+            <select id="estPickupLoc" class="location-select"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>📍 Drop Location</label>
+            <select id="estDropLoc" class="location-select"></select>
+          </div>
+        </div>
+        <button class="btn btn-secondary" id="btnEstimate">Estimate Fare</button>
+        <div id="estimateResult" class="result-panel hidden"></div>
+      </section>
+
+      <!-- Book a Ride -->
+      <section class="card booking-card">
+        <h2>🛫 Book a Ride</h2>
+        <div class="form-row">
+          <div class="field">
+            <label>📍 Pickup Location</label>
+            <select id="bookPickupLoc" class="location-select"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>📍 Drop Location</label>
+            <select id="bookDropLoc" class="location-select"></select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Passengers</label>
+            <input type="number" id="bookPassCount" value="1" min="1" max="4">
+          </div>
+          <div class="field">
+            <label>Luggage</label>
+            <input type="number" id="bookLuggage" value="1" min="0" max="4">
+          </div>
+          <div class="field">
+            <label>Max Detour (km)</label>
+            <input type="number" id="bookDetour" value="3.0" step="0.5" min="0">
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnBook">🚀 Book Ride</button>
+        <div id="bookResult" class="result-panel hidden"></div>
+      </section>
+
+      <!-- Active Ride Panel -->
+      <section class="card active-ride-card">
+        <h2>🔴 Active Ride</h2>
+        <div id="activeRidePanel">
+          <div class="empty-state">No active ride. Book one above!</div>
+        </div>
+      </section>
+
+      <!-- Nearby Available Cabs -->
+      <section class="card nearby-cabs-card">
+        <h2>🚕 Nearby Available Cabs</h2>
+        <div id="nearbyCabsPanel">
+          <div class="empty-state">Select a pickup location to see nearby cabs</div>
+        </div>
+      </section>
+
+      <!-- Ride History -->
+      <section class="card history-card">
+        <h2>📋 Ride History</h2>
+        <div id="rideHistory">
+          <div class="empty-state">No rides yet</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============ DRIVER VIEW ============ -->
+  <main id="driverView" class="view">
+    <div class="view-header">
+      <div class="selector-group">
+        <label for="driverSelect">Select Driver</label>
+        <select id="driverSelect"></select>
+      </div>
+    </div>
+
+    <div class="dashboard-grid driver-grid">
+      <!-- Current Assignment -->
+      <section class="card assignment-card">
+        <h2>📍 Current Assignment</h2>
+        <div id="driverAssignment">
+          <div class="empty-state">No active trip. Waiting for dispatch…</div>
+        </div>
+      </section>
+
+      <!-- Driver Actions -->
+      <section class="card actions-card">
+        <h2>⚡ Actions</h2>
+        <div class="driver-actions">
+          <button class="btn btn-success" id="btnStartTrip" disabled>▶ Start Trip</button>
+          <button class="btn btn-primary" id="btnCompleteRide" disabled>✅ Complete Ride</button>
+        </div>
+        <div id="driverActionResult" class="result-panel hidden"></div>
+      </section>
+
+      <!-- Driver Info -->
+      <section class="card driver-info-card">
+        <h2>🚗 Driver Info</h2>
+        <div id="driverInfo">
+          <div class="empty-state">Select a driver above</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- ============ ADMIN VIEW ============ -->
+  <main id="adminView" class="view">
+    <div class="view-header">
+      <button class="btn btn-secondary" id="btnRefreshAdmin">🔄 Refresh</button>
+    </div>
+
+    <div class="admin-stats" id="adminStats"></div>
+
+    <div class="dashboard-grid admin-grid">
+      <!-- Active Pools -->
+      <section class="card">
+        <h2>🏊 Active Pools</h2>
+        <div id="adminPools">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </section>
+
+      <!-- All Cabs -->
+      <section class="card">
+        <h2>🚕 All Cabs</h2>
+        <div id="adminCabs">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </section>
+
+      <!-- Recent Rides -->
+      <section class="card">
+        <h2>🧾 Recent Rides</h2>
+        <div id="adminRides">
+          <div class="empty-state">Loading…</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

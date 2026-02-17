@@ -1,0 +1,97 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aerolink-ride
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/aerolink
+    username: aerolink
+    password: aerolink123
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 10000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 5000
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: aerolink
+    password: aerolink123
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          max-interval: 10000
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# OpenAPI / Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+
+# AeroLink Custom Config
+aerolink:
+  pricing:
+    base-fare-per-km: 15.0
+    discount-per-co-rider: 0.10
+    min-sharing-discount: 0.60
+    demand-threshold: 0.7
+    demand-sensitivity: 0.5
+    peak-surge-factor: 1.5
+    off-peak-surge-factor: 1.0
+    peak-hours-start: 7
+    peak-hours-end: 10
+    evening-peak-start: 17
+    evening-peak-end: 20
+  pooling:
+    search-radius-km: 0.5
+    max-detour-km: 3.0
+    max-pool-size: 4
+    pool-window-seconds: 60
+    dispatch-interval-ms: 5000
+  concurrency:
+    lock-timeout-seconds: 10
+    optimistic-retry-max: 3

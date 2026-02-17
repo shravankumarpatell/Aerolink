@@ -1,0 +1,59 @@
+server:
+  port: 0 # random port for tests
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5434/aerolink
+    username: aerolink
+    password: aerolink123
+    hikari:
+      maximum-pool-size: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    clean-disabled: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: aerolink
+    password: aerolink123
+
+# AeroLink test config
+aerolink:
+  pricing:
+    base-fare-per-km: 15.0
+    discount-per-co-rider: 0.10
+    min-sharing-discount: 0.60
+    demand-threshold: 0.7
+    demand-sensitivity: 0.5
+    peak-surge-factor: 1.5
+    off-peak-surge-factor: 1.0
+    peak-hours-start: 7
+    peak-hours-end: 10
+    evening-peak-start: 17
+    evening-peak-end: 20
+  pooling:
+    search-radius-km: 10.0
+    max-detour-km: 3.0
+    max-pool-size: 4
+    pool-formation-timeout-minutes: 5
+  concurrency:
+    lock-timeout-seconds: 10
+    optimistic-retry-max: 3

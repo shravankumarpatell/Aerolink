@@ -1,0 +1,72 @@
+# ═══════════════════════════════════════════
+# AeroLink — .gitignore
+# ═══════════════════════════════════════════
+
+# ─── Maven Build ──────────────────────────
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ─── IDE: IntelliJ IDEA ──────────────────
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# ─── IDE: Eclipse ─────────────────────────
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+bin/
+
+# ─── IDE: NetBeans ────────────────────────
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# ─── IDE: VS Code ────────────────────────
+.vscode/
+
+# ─── Frontend ─────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# ─── Docker ───────────────────────────────
+docker-compose.override.yml
+
+# ─── Environment / Secrets ────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ─── OS Generated ────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ─── Logs ─────────────────────────────────
+*.log
+logs/
+docker-logs*.txt
+logs*.txt
+
+# ─── Misc ─────────────────────────────────
+*.swp
+*.swo
+*~
+.gemini/

@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    show-sql: true
+
+  flyway:
+    enabled: true
+
+aerolink:
+  pricing:
+    base-fare-per-km: 15.0
+  pooling:
+    search-radius-km: 10.0
+    max-detour-km: 3.0
+    max-pool-size: 4
+  concurrency:
+    lock-timeout-seconds: 5
+    optimistic-retry-max: 3
