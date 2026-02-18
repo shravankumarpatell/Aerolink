@@ -479,6 +479,8 @@ The database is auto-seeded via Flyway migrations on startup. No manual setup re
 
 ## 🧪 Testing
 
+> 📖 **For a comprehensive, step-by-step testing walkthrough** (route optimization, cancellation, concurrency, performance, SSE), see **[TESTING_GUIDE.md](TESTING_GUIDE.md)**.
+
 ```bash
 # Run ALL tests (unit + integration)
 mvn test

@@ -1,5 +1,6 @@
 package com.aerolink.ride.service;
 
+import com.aerolink.ride.algorithm.RouteDeviationChecker;
 import com.aerolink.ride.dto.event.RideEvent;
 import com.aerolink.ride.entity.Cab;
 import com.aerolink.ride.entity.RidePool;
@@ -107,6 +108,19 @@ public class CancellationService {
                     // Dissolve pool and release cab
                     dissolvePool(pool);
                 } else {
+                    // Recalculate route distance with remaining riders
+                    if (activeRiders.size() == 1) {
+                        RideRequest sole = activeRiders.get(0);
+                        pool.setTotalRouteDistanceKm(
+                                RouteDeviationChecker.estimateTotalRouteDistance(List.of(), sole));
+                    } else {
+                        // Use first rider as "new" and rest as "existing" for the algorithm
+                        RideRequest first = activeRiders.get(0);
+                        List<RideRequest> rest = activeRiders.subList(1, activeRiders.size());
+                        pool.setTotalRouteDistanceKm(
+                                RouteDeviationChecker.estimateTotalRouteDistance(rest, first));
+                    }
+
                     ridePoolRepository.save(pool);
 
                     // Only recalculate prices if pool was already dispatched (has prices)

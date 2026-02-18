@@ -294,6 +294,84 @@ public class LoadTest {
             System.out.println("║  ⚠️  SOME SLAs NEED ATTENTION                   ║");
         }
         System.out.println("╚══════════════════════════════════════════════════╝");
+
+        // Write plain ASCII report for easy file reading
+        writeReportFile(priceResults, priceSorted, priceThroughput, priceP95,
+                rideResults, rideSorted, rideThroughput, rideP95, allPass);
+    }
+
+    private static void writeReportFile(Results priceResults, List<Long> priceSorted,
+            double priceThroughput, long priceP95,
+            Results rideResults, List<Long> rideSorted,
+            double rideThroughput, long rideP95, boolean allPass) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("=== AEROLINK PERFORMANCE TEST REPORT ===\n\n");
+
+            // Price estimation details
+            double priceAvg = priceSorted.stream().mapToLong(l -> l).average().orElse(0);
+            long priceP50 = priceSorted.get((int) (priceSorted.size() * 0.50));
+            long priceP90 = priceSorted.get((int) (priceSorted.size() * 0.90));
+            long priceP99 = priceSorted.get(Math.min((int) (priceSorted.size() * 0.99), priceSorted.size() - 1));
+            long priceMax = priceSorted.get(priceSorted.size() - 1);
+
+            sb.append("--- PRICE ESTIMATION ---\n");
+            sb.append(String.format("Total requests:    %d\n", priceResults.success + priceResults.failures));
+            sb.append(String.format("Successful:        %d\n", priceResults.success));
+            sb.append(String.format("Failed:            %d\n", priceResults.failures));
+            sb.append(String.format("Total time:        %d ms\n", priceResults.totalTimeMs));
+            sb.append(String.format("Throughput:        %.1f req/s\n", priceThroughput));
+            sb.append(String.format("Avg latency:       %.1f ms\n", priceAvg));
+            sb.append(String.format("P50 latency:       %d ms\n", priceP50));
+            sb.append(String.format("P90 latency:       %d ms\n", priceP90));
+            sb.append(String.format("P95 latency:       %d ms\n", priceP95));
+            sb.append(String.format("P99 latency:       %d ms\n", priceP99));
+            sb.append(String.format("Max latency:       %d ms\n", priceMax));
+            sb.append("\n");
+
+            // Ride booking details
+            if (!rideSorted.isEmpty()) {
+                double rideAvg = rideSorted.stream().mapToLong(l -> l).average().orElse(0);
+                long rideP50 = rideSorted.get((int) (rideSorted.size() * 0.50));
+                long rideP90 = rideSorted.get((int) (rideSorted.size() * 0.90));
+                long rideP99 = rideSorted.get(Math.min((int) (rideSorted.size() * 0.99), rideSorted.size() - 1));
+                long rideMax = rideSorted.get(rideSorted.size() - 1);
+
+                sb.append("--- RIDE BOOKING ---\n");
+                sb.append(String.format("Total requests:    %d\n", rideResults.success + rideResults.failures));
+                sb.append(String.format("Successful:        %d\n", rideResults.success));
+                sb.append(String.format("Failed:            %d\n", rideResults.failures));
+                sb.append(String.format("Total time:        %d ms\n", rideResults.totalTimeMs));
+                sb.append(String.format("Throughput:        %.1f req/s\n", rideThroughput));
+                sb.append(String.format("Avg latency:       %.1f ms\n", rideAvg));
+                sb.append(String.format("P50 latency:       %d ms\n", rideP50));
+                sb.append(String.format("P90 latency:       %d ms\n", rideP90));
+                sb.append(String.format("P95 latency:       %d ms\n", rideP95));
+                sb.append(String.format("P99 latency:       %d ms\n", rideP99));
+                sb.append(String.format("Max latency:       %d ms\n", rideMax));
+                sb.append("\n");
+            }
+
+            sb.append("--- SLA CHECK ---\n");
+            sb.append(String.format("Price P95 <= 300ms:     %s (%d ms)\n",
+                    priceP95 <= 300 ? "PASS" : "FAIL", priceP95));
+            sb.append(String.format("Price Throughput >= 100: %s (%.1f req/s)\n",
+                    priceThroughput >= 100 ? "PASS" : (priceThroughput >= 50 ? "ACCEPTABLE" : "FAIL"),
+                    priceThroughput));
+            sb.append(String.format("Ride P95 <= 300ms:      %s (%d ms)\n",
+                    rideP95 <= 300 ? "PASS" : "FAIL", rideP95));
+            sb.append(String.format("Ride Throughput >= 100:  %s (%.1f req/s)\n",
+                    rideThroughput >= 100 ? "PASS" : (rideThroughput >= 50 ? "ACCEPTABLE" : "FAIL"),
+                    rideThroughput));
+            sb.append(String.format("\nOVERALL: %s\n", allPass ? "ALL SLAs MET" : "SOME SLAs NEED ATTENTION"));
+
+            java.nio.file.Files.writeString(
+                    java.nio.file.Path.of("target/loadtest-report.txt"), sb.toString(),
+                    java.nio.charset.StandardCharsets.US_ASCII);
+            System.out.println("\nReport written to target/loadtest-report.txt");
+        } catch (Exception e) {
+            System.err.println("Failed to write report file: " + e.getMessage());
+        }
     }
 
     record Results(List<Long> latencies, int success, int failures, long totalTimeMs) {
